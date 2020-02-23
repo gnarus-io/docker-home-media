@@ -3,14 +3,14 @@ version: "2"
 services:
 
     wait-for-config:
-        image: gnarus/wait-for-file
+        build: wait-for-file
         container_name: wait-for-config
         volumes:
             - /etc/host:/wait
         command: /wait/ready
 
     wait-for-data:
-        image: gnarus/wait-for-file
+        build: wait-for-file
         container_name: wait-for-data
         volumes:
             - /var/host:/wait
