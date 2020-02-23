@@ -1,34 +1,37 @@
-version: '2'
+version: "2"
+
 services:
+
     wait-for-config:
         image: gnarus/wait-for-file
         container_name: wait-for-config
         volumes:
             - /etc/host:/wait
         command: /wait/ready
+
     wait-for-data:
         image: gnarus/wait-for-file
         container_name: wait-for-data
         volumes:
             - /var/host:/wait
         command: /wait/ready
-    sabnzb:
-        image: linuxserver/sabnzbd
+
+    nzbget:
+        image: linuxserver/nzbget
         container_name: sabnzbd
         environment:
             - PUID=0
             - PGID=0
         volumes:
-            - /etc/host/sabnzb:/config
+            - /etc/host/nzbget:/config
             - /var/host/downloads:/downloads
-            - /var/host/incomplete-downloads:/incomplete-downloads
         ports:
-            - 8080:8080
-            - 9090:9090
+            - 6789:6789
         restart: unless-stopped
         depends_on:
             - wait-for-config
             - wait-for-data
+
     sonarr:
         image: linuxserver/sonarr
         container_name: sonarr
@@ -45,6 +48,7 @@ services:
         depends_on:
             - wait-for-config
             - wait-for-data
+
     radarr:
         image: linuxserver/radarr
         container_name: radarr
@@ -61,3 +65,11 @@ services:
         depends_on:
             - wait-for-config
             - wait-for-data
+
+    watchtower:
+        container_name: watchtower
+        restart: always
+        image: v2tec/watchtower
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: --schedule "0 0 4 * * *" --cleanup
