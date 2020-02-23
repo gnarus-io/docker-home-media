@@ -1,0 +1,63 @@
+version: '2'
+services:
+    wait-for-config:
+        image: gnarus/wait-for-file
+        container_name: wait-for-config
+        volumes:
+            - /etc/host:/wait
+        command: /wait/ready
+    wait-for-data:
+        image: gnarus/wait-for-file
+        container_name: wait-for-data
+        volumes:
+            - /var/host:/wait
+        command: /wait/ready
+    sabnzb:
+        image: linuxserver/sabnzbd
+        container_name: sabnzbd
+        environment:
+            - PUID=0
+            - PGID=0
+        volumes:
+            - /etc/host/sabnzb:/config
+            - /var/host/downloads:/downloads
+            - /var/host/incomplete-downloads:/incomplete-downloads
+        ports:
+            - 8080:8080
+            - 9090:9090
+        restart: unless-stopped
+        depends_on:
+            - wait-for-config
+            - wait-for-data
+    sonarr:
+        image: linuxserver/sonarr
+        container_name: sonarr
+        environment:
+            - PUID=0
+            - PGID=0
+        volumes:
+            - /etc/host/sonarr:/config
+            - /var/host/tv:/tv
+            - /var/host/downloads:/downloads
+        ports:
+            - 8989:8989
+        restart: unless-stopped
+        depends_on:
+            - wait-for-config
+            - wait-for-data
+    radarr:
+        image: linuxserver/radarr
+        container_name: radarr
+        environment:
+            - PUID=0
+            - PGID=0
+        volumes:
+            - /etc/host/radarr:/config
+            - /var/host/movies:/movies
+            - /var/host/downloads:/downloads
+        ports:
+            - 7878:7878
+        restart: unless-stopped
+        depends_on:
+            - wait-for-config
+            - wait-for-data
