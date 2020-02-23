@@ -1,7 +1,6 @@
 version: "2"
 
 services:
-
     wait-for-config:
         build: wait-for-file
         container_name: wait-for-config
@@ -65,6 +64,24 @@ services:
         depends_on:
             - wait-for-config
             - wait-for-data
+
+    emby:
+        image: linuxserver/emby
+        container_name: emby
+        environment:
+            - PUID=0
+            - PGID=0
+        volumes:
+            - /etc/host/emby:/config
+            - /var/host/tv:/data/tvshows
+            - /var/host/movies:/data/movies
+            - /var/host/transcode:/transcode #optional
+        ports:
+            - 8096:8096
+            - 8920:8920 #optional
+        devices:
+            - /dev/dri:/dev/dri #optional
+        restart: unless-stopped
 
     watchtower:
         container_name: watchtower
